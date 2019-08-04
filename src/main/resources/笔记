@@ -1,0 +1,32 @@
+一、Spring整合JBDC
+    1.引入依赖
+二、Spring事务管理
+    1.通过xml开启事务
+        <!-- 事务管理器定义 -->
+            <bean id="txManager"
+                  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+                <property name="dataSource" ref="dataSource"></property>
+            </bean>
+            <!-- 配置通知 -->
+            <tx:advice id="txAdvice" transaction-manager="txManager">
+                <tx:attributes>
+                    <!--匹配以save开头的service方法均加入事物-->
+                    <tx:method name="save*" propagation="REQUIRED" />
+                    <!--匹配以del开头的service方法均加入事物-->
+                    <tx:method name="del*" propagation="REQUIRED" />
+                    <!--匹配以update开头的service方法均加入事物-->
+                    <tx:method name="update*" propagation="REQUIRED" />
+                    <!--匹配以query开头的service方法事物为只读模式-->
+                    <tx:method name="query*" read-only="true" />
+                </tx:attributes>
+            </tx:advice>
+            <!-- aop 切面定义 -->
+            <aop:config>
+                <aop:pointcut expression="execution( * com.yuanziren.service..*.*(..) )" id="cut" />
+                <aop:advisor advice-ref="txAdvice" pointcut-ref="cut" />
+            </aop:config>
+    2.通过注解开启事务
+      2.1<!-- 开启注解事务 -->
+        <tx:annotation-driven transaction-manager="txManager"/>
+      2.2在需要事务管理的方法上面添加注解
+        @Transactional(propagation = Propagation.REQUIRED)
